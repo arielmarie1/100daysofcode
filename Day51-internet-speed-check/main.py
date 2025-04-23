@@ -6,7 +6,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 
-PROMISED_DOWN = 150
+PROMISED_DOWN = 25
 PROMISED_UP = 10
 SPEEDTEST_LINK = "https://www.speedtest.net/"
 
@@ -65,6 +65,21 @@ class InternetSpeedCheck:
 
     def twitter_complaint(self):
         print("Tweeting at provider...")
+        too_slow = False
+        message_parts = ["Hey Internet provider, why is my internet so slow? "]
+        # Check if download speed, upload speed or both speeds are slower than promised
+        if self.down < PROMISED_DOWN:
+            too_slow = True
+            message_parts.append(f"The download speed is only {self.down} Mbps instead of {PROMISED_DOWN} Mbps.")
+        if self.up < PROMISED_UP:
+            too_slow = True
+            message_parts.append(f" The upload speed is only {self.up} Mbps instead of {PROMISED_UP} Mbps.")
+        if too_slow:
+            message = "".join(message_parts)
+            print(message)
+        else:
+            print("Speeds are good. No complaints")
+            return None
 
 
 bot = InternetSpeedCheck()
