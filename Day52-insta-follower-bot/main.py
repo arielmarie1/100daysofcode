@@ -4,6 +4,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.support import expected_conditions as ec
+from time import sleep
+import random as rd
 from dotenv import load_dotenv
 import os
 
@@ -72,36 +74,78 @@ class InstaFollower:
         except TimeoutException:
             print("No account followers found.")
 
-    def follow(self):
-        # Find list of all followers (by username as an example without actually following people)
-        # follower username <span class="_ap3a _aaco _aacw _aacx _aad7 _aade" dir="auto">exampleusername</span>
+    def follow(self, max_follows=100, follow=False):
+        last_count = 0
+        attempts = 0
+        follows = 0
+        fake_follows = 0
+
         try:
             WebDriverWait(self.driver, 10).until(
                 ec.element_to_be_clickable((By.CSS_SELECTOR, "span[class*='_ap3a _aaco _aacw _aacx _aad7 _aade']")))
-            account_followers = self.driver.find_elements(By.CSS_SELECTOR,
-                                                          "span[class*='_ap3a _aaco _aacw _aacx _aad7 _aade']")
-            for account in account_followers[:10]:
-                # print list of usernames to follow (as test that code is working)
-                print(account.text)
+            print("Followers loaded...")
+            scroll_box = self.driver.find_element(By.XPATH, ".//div[contains(@class, 'xyi19xy')]")
+            # long xpath: "/html/body/div[6]/div[2]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]"
         except TimeoutException:
-            print("Account followers not loading.")
+            print("Followers page took too long to load")
+            return
 
-        # Actually Follow accounts
-        # follow button <div class="_ap3a _aaco _aacw _aad6 _aade" dir="auto">Follow</div>
-        try:
-            WebDriverWait(self.driver, 10).until(
-                ec.element_to_be_clickable((By.CSS_SELECTOR, "div[class*='_ap3a _aaco _aacw _aad6 _aade']")))
-            follow_button = self.driver.find_elements(By.CSS_SELECTOR,
-                                                      "div[class*='_ap3a _aaco _aacw _aad6 _aade']")
-            for follow in follow_button[:10]:
-                print(follow.text)
-                # follow_button.click()
-        except TimeoutException:
-            print("Account followers not loading.")
+        while True:
+            # Collect current follower links
+            try:
+                followers = self.driver.find_elements(By.CSS_SELECTOR,
+                                                      "span[class*='_ap3a _aaco _aacw _aacx _aad7 _aade']")
+                follow_buttons = self.driver.find_elements(By.CSS_SELECTOR,
+                                                           "div[class*='_ap3a _aaco _aacw _aad6 _aade']")
+                print(f"Found {len(followers)} accounts")
+                remaining = max_follows - last_count
+                for user, button in zip(followers[last_count:last_count + remaining],
+                                        follow_buttons[last_count:last_count + remaining]):
+                    if follow:
+                        try:
+                            button.click()
+                            sleep(rd.uniform(1, 5))  # Wait arbitrary amount of time
 
-        # TODO: scroll down on followers page to access more followers (max 15)
-        # TODO: follow bot with delay between follows and maximum number of follows
-        # TODO: handle exceptions for when you have already followed someone and a popup appears to unfollow that user
+                            # In order to not get blocked on Instagram this part of the code was not tested.
+                            try:
+                                # Check if popup shows up (means already following)
+                                WebDriverWait(self.driver, 10).until(
+                                    ec.element_to_be_clickable((By.XPATH, "//button[text()='Cancel']")))
+                                cancel_button = self.driver.find_element(By.XPATH, "//button[text()='Cancel']")
+                                cancel_button.click()
+                                print(f"Skipped {user.text} (already followed)")
+                            except NoSuchElementException:
+                                # No popup window means not following user yet. Add to "follows" count.
+                                print(f"Followed {user.text}")
+                                follows += 1
+                        except Exception as e:
+                            print(f"Error following {user.text}: {e}")
+                    else:
+                        # print(f"Fake followed {user.text}")
+                        fake_follows += 1
+
+                # Break if the desired number is reached
+                if len(followers) >= max_follows:
+                    break
+
+                # Scroll down
+                self.driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", scroll_box)
+                sleep(2)
+
+                # Check if new accounts loaded
+                if len(followers) == last_count:
+                    attempts += 1
+                    if attempts >= 3:
+                        print("No more new accounts loading. Stopping.")
+                        break
+                else:
+                    attempts = 0  # reset if new ones appeared
+                    last_count = len(followers)
+
+            except TimeoutException:
+                print("Account followers not loading.")
+
+        print(f"Followed: {follows} accounts. Fake followed: {fake_follows} accounts")
 
     def close_browser(self):
         # Close and quit browser
