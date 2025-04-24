@@ -74,7 +74,7 @@ notifications_button.click()
 cookies = driver.find_element(By.XPATH, value='//*[@id="content"]/div/div[2]/div/div/div[1]/button')
 cookies.click()
 
-# Locate Like button
+# Locate Like button (not tested due to not wanted to use tinder)
 for n in range(100):
     sleep(2)
 
@@ -88,9 +88,10 @@ for n in range(100):
 
     # Catches the cases where there is a "Matched" pop-up in front of the "Like" button:
     except ElementClickInterceptedException:
+
     try:
-        match_popup = driver.find_element(By.CSS_SELECTOR, value=".itsAMatch a")
-        match_popup.click()
+            match_popup = driver.find_element(By.CSS_SELECTOR, value=".itsAMatch a")
+            match_popup.click()
 
     # Catches the cases where the "Like" button has not yet loaded, so wait 2 seconds before retrying.
     except NoSuchElementException:
