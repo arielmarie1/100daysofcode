@@ -14,4 +14,15 @@ zillow_website = response.text
 
 # Accessing webpage using Beautiful Soup
 soup = BeautifulSoup(zillow_website, "html.parser")
+listings = soup.find_all(name="li", class_="ListItem-c11n-8-84-3-StyledListCardWrapper")
+
+for item in listings:
+    link = item.find("a").get("href")
+    address = item.find("address").getText(strip=True)
+    price_text = item.find("span").getText(strip=True)
+    price = ''.join(c for c in price_text if c.isdigit())
+    print(f"Link: {link + "\n"}Address: {address + "\n"}Price: {price + "\n"}")
+
+
+
 
