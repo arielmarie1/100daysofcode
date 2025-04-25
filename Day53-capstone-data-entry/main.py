@@ -8,10 +8,10 @@ load_dotenv()
 google_form = os.getenv("GOOGLE_FORM")
 
 # Loading Real Estate Website webpage
-contents = "https://appbrewery.github.io/Zillow-Clone/"
+contents = "https://www.nepremicnine.net/oglasi-oddaja/ljubljana-mesto/stanovanje/"
 
 soup_bot = RealEstateScraper(contents)
 listings_data = soup_bot.get_listings()
-bot = GoogleFormBot()
-bot.fill_form(google_form, listings_data)
-bot.close_browser()
+# bot = GoogleFormBot()
+# bot.fill_form(google_form, listings_data)
+# bot.close_browser()
