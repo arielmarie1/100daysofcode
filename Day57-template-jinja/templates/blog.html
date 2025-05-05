@@ -2,15 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Blog</title>
+    <title>Title</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/styles.css">
 </head>
 <body>
+<div class="wrapper">
+    <div class="top">
+        <div class="title"><h1>My Blog</h1></div>
+    </div>
     {% for blog_post in posts: %}
-        {%if blog_post["id"] == 2: %}
-            <h1>{{blog_post["title"]}}</h1>
-            <h2>{{blog_post["subtitle"]}}</h2>
-            <p>{{blog_post["body"]}}</p>
+        {% if blog_post["id"] == post_id %}
+            <div class="content">
+                <div class="card">
+                    <h2>{{blog_post["title"]}}</h2>
+                    <h3 class="text">{{blog_post["subtitle"]}}</h3>
+                    <p>{{blog_post["body"]}}</p>
+                </div>
+            </div>
         {% endif %}
     {% endfor %}
+</div>
 </body>
+<footer>
+    <p>Made with ♥️ in London.</p>
+</footer>
 </html>
