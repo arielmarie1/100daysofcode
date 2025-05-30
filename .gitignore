@@ -1,2 +1,15 @@
+# === Python ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
 .env
 .venv/
+
+# === IDE Files ===
+.idea/
+.vscode/
+*.iml
+
+!static/images/*.png
