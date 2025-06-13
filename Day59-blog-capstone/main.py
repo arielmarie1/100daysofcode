@@ -25,19 +25,16 @@ def post(post_id):
     return render_template("post.html", posts=all_posts, post_id=post_id)
 
 
-@app.route("/contact")
-def contact():
-    return render_template("contact_simple.html")
-
-
-@app.route("/contact", methods=["POST"])
+@app.route("/contact", methods=["GET", "POST"])
 def receive_data():
-    name = request.form['name']
-    email = request.form['email']
-    phone = request.form['phone']
-    message = request.form['message']
-    print(f"Name: {name}\nEmail: {email}\nPhone number: {phone}\nMessage: {message}")
-    return render_template("form_sent.html")
+    if request.method == "POST":
+        name = request.form['name']
+        email = request.form['email']
+        phone = request.form['phone']
+        message = request.form['message']
+        print(f"Name: {name}\nEmail: {email}\nPhone number: {phone}\nMessage: {message}")
+        return render_template("contact.html", msg_sent=True)
+    return render_template("contact.html", msg_sent=False)
 
 
 # Run in debug mode
