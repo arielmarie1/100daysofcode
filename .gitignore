@@ -1,15 +1,21 @@
 # === Python ===
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
 venv/
-.env
 .venv/
+.env
 
 # === IDE Files ===
 .idea/
 .vscode/
 *.iml
 
-!static/images/*.png
+# === Ignore generated or vendor files ===
+static/assets/webfonts/
+static/assets/libs/
+static/assets/js/*.min.js
+static/assets/css/*.min.css
+
+# === Exceptions ===
+!static/images/*
+!static/assets/images/*
