@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import requests
 
 app = Flask(__name__)
@@ -27,7 +27,17 @@ def post(post_id):
 
 @app.route("/contact")
 def contact():
-    return render_template("contact.html")
+    return render_template("contact_simple.html")
+
+
+@app.route("/contact", methods=["POST"])
+def receive_data():
+    name = request.form['name']
+    email = request.form['email']
+    phone = request.form['phone']
+    message = request.form['message']
+    print(f"Name: {name}\nEmail: {email}\nPhone number: {phone}\nMessage: {message}")
+    return render_template("form_sent.html")
 
 
 # Run in debug mode
