@@ -1,17 +1,16 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %} {% endblock %}</title>
-    <style>
-        {% block styling %}
-        body {
-            background: purple;
-        }
-        {% endblock %}
-    </style>
-</head>
-<body>
-    {% block content %} {% endblock %}
-</body>
+    <head>
+        <meta charset="utf-8">
+
+        {% block styles %}
+            <!-- Bootstrap CSS -->
+            {{ bootstrap.load_css() }} {% endblock %}
+
+        <title>{% block title%} {% endblock %} </title>
+    </head>
+    <body>
+        <!-- Your page content -->
+        {% block content %}{% endblock %}
+    </body>
 </html>
