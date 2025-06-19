@@ -12,7 +12,6 @@
 	  <table class="table table-dark table-striped table-hover">
           <thead>
             <tr>
-                <th scope="col">#</th>
                 <th scope="col">Cafe Name</th>
                 <th scope="col">Location URL</th>
                 <th scope="col">Opens</th>
@@ -25,9 +24,12 @@
           <tbody>
           {% for cafe in cafes %}
           <tr>
-              <th scope="row">1</th>
               {% for header in headers %}
-              <td>{{ cafe[header] }}</td>
+                {% if cafe[header][0:4] == "http" %}
+                    <td><a href="{{ cafe[header] }}">Maps Link</a></td>
+                {% else %}
+                    <td>{{ cafe[header] }}</td>
+                {% endif %}
               {% endfor %}
           </tr>
           {% endfor %}
