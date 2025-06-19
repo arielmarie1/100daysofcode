@@ -21,15 +21,13 @@ class CafeForm(FlaskForm):
     location = URLField(
         'Location URL',
         validators=[DataRequired(), URL()])
-    open_time = DateTimeField(
+    open_time = StringField(
         'Opening time',
-        format="%I %p",
-        render_kw={"placeholder": "ex. 9 AM"},
+        render_kw={"placeholder": "ex. 9AM"},
         validators=[DataRequired()])
-    close_time = DateTimeField(
+    close_time = StringField(
         'Closing time',
-        format="%I %p",
-        render_kw={"placeholder": "ex. 10 PM"},
+        render_kw={"placeholder": "ex. 10PM"},
         validators=[DataRequired()])
     coffee_rating = IntegerField(
         'Coffee Rating 0-5',
@@ -51,14 +49,18 @@ def home():
     return render_template("index.html")
 
 
-@app.route('/add')
+@app.route('/add', methods=["GET", "POST"])
 def add_cafe():
     form = CafeForm()
     if form.validate_on_submit():
-        print("True")
-    # Exercise:
-    # Make the form write a new row into cafe-data.csv
-    # with   if form.validate_on_submit()
+        print("Submitted")
+        new_cafe = []
+        for header in cafeformheaders:
+            cafe = form[header].data
+            new_cafe.append(cafe)
+        with open("cafe-data.csv", mode="a", newline='', encoding="utf-8") as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(new_cafe)
     return render_template('add.html', form=form, headers=cafeformheaders)
 
 
