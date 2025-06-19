@@ -84,8 +84,8 @@ def add_cafe():
         with open("cafe-data.csv", mode="a", newline='', encoding="utf-8") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(new_cafe)
-
-    return render_template('add.html', form=form, headers=cafeformheaders)
+        return render_template('add.html', form=form, headers=cafeformheaders, cafe_added=True)
+    return render_template('add.html', form=form, headers=cafeformheaders, cafe_added=False)
 
 
 @app.route('/cafes')
