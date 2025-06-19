@@ -66,11 +66,12 @@ def add_cafe():
 def cafes():
     with open('cafe-data.csv', newline='', encoding='utf-8') as csv_file:
         csv_data = csv.reader(csv_file, delimiter=',')
-      #  headers = next(csv_data) # first row
-        list_of_rows = []
+        cafes = []
+        csv_headers = next(csv_data)  # first row
         for row in csv_data:
-            list_of_rows.append(row)
-    return render_template('cafes.html', cafes=list_of_rows, headers=cafeformheaders)
+            cafe_dict = dict(zip(csv_headers, row))
+            cafes.append(cafe_dict)
+    return render_template('cafes.html', cafes=cafes, headers=csv_headers)
 
 
 if __name__ == '__main__':
