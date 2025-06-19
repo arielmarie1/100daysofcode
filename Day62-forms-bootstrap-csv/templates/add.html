@@ -9,9 +9,20 @@
 
       <h1>Add a new cafe into the database</h1>
 
-      <!-- This is where your WTForm will go -->
+      <form method= "POST" action="{{ url_for('add_cafe') }}" novalidate>
+				{{ form.csrf_token }}
+                {% for field in headers %}
+                  <p>
+                      {{ form[field].label }} <br> {{ form[field](size=30) }}
+                      {% for err in form[field].errors %}
+                      <span style="color:red">{{ err }}</span>
+                      {% endfor %}
+                  </p>
+                {% endfor %}
+				{{ form.submit }}
+			</form>
 
-	  <p class="space-above"><a href="#">See all cafes</a></p>
+	  <p class="space-above"><a href="/cafes">See all cafes</a></p>
 
     </div>
   </div>
