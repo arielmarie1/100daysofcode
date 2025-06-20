@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Add Book{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12 col-md-8">
+      <h1> Add Book to Library</h1>
+
+      <form action="{{ url_for('add') }}" method="POST" novalidate>
+        {{ form.csrf_token }}
+        {% for field in headers %}
+          <p>
+            {{ form[field].label }} <br> {{ form[field](size=30) }}
+            {% for err in form[field].errors %}
+            <span style="color:orangered"> {{ err }} </span>
+            {% endfor %}
+          </p>
+        {% endfor %}
+        {{ form.submit }}
+      </form>
+
+    {% if book_added %}
+    <p style="color: #008000;">Your entry has been successfully added!</p>
+    {% endif %}
+      <a href="/">Back to Library</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Library{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12 col-md-8">
+    <h1>My Library</h1>
+    <ul>
+      {% if all_books == [] %}
+      <p> Library is empty </p>
+      {% else %}
+        {% for book in all_books %}
+            <li>{{ book.title }} - {{ book.author }} - {{ book.rating }}/5 </li>
+        {% endfor %}
+      {% endif %}
+    </ul>
+
+    <a href="/add">Add New Book</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
