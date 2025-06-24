@@ -9,8 +9,18 @@
         {% for book in all_books %}
             {% if book.id == book_id %}
             <li>Book Name: {{ book.title }} </li>
-            <li>Current Rating: {{ book.rating }}/5 </li>
-<!--        Add form here to change the rating which will update the database.-->
+            <li>Current Rating: {{ book.rating }}/10 </li>
+            <li>
+                <form action="{{ url_for('edit', book_id=book.id) }}" method="POST" novalidate>
+                {{ form.csrf_token }}
+                <p>{{ form.edit_rating.label }} {{ form.edit_rating(size=30) }}
+                    {% for err in form.edit_rating.errors %}
+                        <span style="color:orangered"> {{ err }} </span>
+                    {% endfor %}
+                </p>
+                {{ form.submit }}
+                </form>
+            </li>
             {% endif %}
         {% endfor %}
     </ul>

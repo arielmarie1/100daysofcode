@@ -1,7 +1,7 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerField
+from wtforms import StringField, SubmitField, FloatField
 from wtforms.validators import DataRequired, NumberRange, InputRequired
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -43,13 +43,22 @@ with app.app_context():
 formheaders = ["title", "author", "rating"]
 
 
+# Add new book to Library
 class AddBookForm(FlaskForm):
     title = StringField('Book Title', validators=[DataRequired()])
     author = StringField('Book Author', validators=[DataRequired()])
-    rating = IntegerField('Rating 0-5',
+    rating = FloatField('Rating 0-10',
                           validators=[InputRequired(),
-                                      NumberRange(min=0, max=5)])
+                                      NumberRange(min=0, max=10)])
     submit = SubmitField('Submit')
+
+
+# Edit rating of existing book in Library
+class EditRatingForm(FlaskForm):
+    edit_rating = FloatField('Update Rating 0-10:',
+                          validators=[InputRequired(),
+                                      NumberRange(min=0, max=10)])
+    submit = SubmitField('Change Rating')
 
 
 @app.route('/')
@@ -76,13 +85,19 @@ def add():
     return render_template("add.html", form=form, headers=formheaders, book_added=False)
 
 
-@app.route("/edit/<int:book_id>")
-def post(book_id):
+@app.route("/edit/<int:book_id>", methods=["GET", "POST"])
+def edit(book_id):
     with app.app_context():
         books = db.session.execute(db.select(Book).order_by(Book.title)).scalars().all()
-    return render_template("edit.html", all_books=books, book_id=book_id)
+    edit_form = EditRatingForm()
+    if edit_form.validate_on_submit():
+        with app.app_context():
+            book_to_update = db.session.execute(db.select(Book).where(Book.id == book_id)).scalar()
+            book_to_update.rating = edit_form["edit_rating"].data
+            db.session.commit()
+        return redirect(url_for("home"))
+    return render_template("edit.html", form=edit_form, all_books=books, book_id=book_id)
 
 
 if __name__ == "__main__":
     app.run(debug=True)
-
