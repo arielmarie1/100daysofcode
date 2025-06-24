@@ -42,7 +42,7 @@ with app.app_context():
 # Read all records
 with app.app_context():
     result = db.session.execute(db.select(Book).order_by(Book.title))
-    all_books = result.scalars()
+    all_books = result.scalars().all()
 
 # Read a particular record by Query
 with app.app_context():

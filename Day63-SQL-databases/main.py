@@ -40,7 +40,6 @@ with app.app_context():
 
 
 # Create website form
-all_books = []
 formheaders = ["title", "author", "rating"]
 
 
@@ -55,7 +54,9 @@ class AddBookForm(FlaskForm):
 
 @app.route('/')
 def home():
-    return render_template("index.html", headers=formheaders, all_books=all_books)
+    with app.app_context():
+        books = db.session.execute(db.select(Book).order_by(Book.title)).scalars().all()
+    return render_template("index.html", headers=formheaders, all_books=books)
 
 
 @app.route("/add", methods=["GET", "POST"])
@@ -66,14 +67,11 @@ def add():
         book_dict = {}
         for header in formheaders:
             book_dict[form[header].name] = form[header].data
-        all_books.append(book_dict)
-        print(book_dict.title)
-        # # Create a new record
-        # with app.app_context():
-        #     book1 = Book(id=1, title='Harry Potter', author='J.K. Rowling', rating=9.3)
-        #     # new_book = Book(title='Exhalation', author='Ted Chang', rating=9.4)
-        #     db.session.add(book1)
-        #     db.session.commit()
+        # Create a new record
+        with app.app_context():
+            book = Book(title=book_dict["title"], author=book_dict["author"], rating=book_dict["rating"])
+            db.session.add(book)
+            db.session.commit()
         return render_template("add.html", form=form, headers=formheaders, book_added=True)
     return render_template("add.html", form=form, headers=formheaders, book_added=False)
 
