@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Edit Rating{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12 col-md-8">
+    <h1>Change Rating</h1>
+    <ul>
+        {% for book in all_books %}
+            {% if book.id == book_id %}
+            <li>Book Name: {{ book.title }} </li>
+            <li>Current Rating: {{ book.rating }}/5 </li>
+<!--        Add form here to change the rating which will update the database.-->
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+    <a href="/add">Add New Book</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

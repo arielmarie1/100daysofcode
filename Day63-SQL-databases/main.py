@@ -76,6 +76,13 @@ def add():
     return render_template("add.html", form=form, headers=formheaders, book_added=False)
 
 
+@app.route("/edit/<int:book_id>")
+def post(book_id):
+    with app.app_context():
+        books = db.session.execute(db.select(Book).order_by(Book.title)).scalars().all()
+    return render_template("edit.html", all_books=books, book_id=book_id)
+
+
 if __name__ == "__main__":
     app.run(debug=True)
 
