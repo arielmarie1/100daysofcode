@@ -15,6 +15,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 Bootstrap5(app)
 
+# The Movie Database API
+TMDB_API_KEY = os.getenv("API_KEY")
 
 # CREATE DB
 class Base(DeclarativeBase):
@@ -47,9 +49,15 @@ with app.app_context():
 
 
 # CREATE FORM
-form_headers = ["title", "year", "description", "rating", "ranking", "review", "img_url"]
-class AddMovieForm(FlaskForm):
+class MovieTitleForm(FlaskForm):
+    title = StringField('Movie Title', validators=[DataRequired()])
+    submit = SubmitField('Add Movie')
 
+
+form_headers = ["title", "year", "description", "rating", "ranking", "review", "img_url"]
+
+
+class AddMovieForm(FlaskForm):
     title = StringField('Movie Title', validators=[DataRequired()])
     year = StringField('Year', validators=[DataRequired()])
     description = StringField('Description', validators=[DataRequired()])
@@ -87,17 +95,20 @@ def home():
 
 @app.route("/add", methods=["GET", "POST"])
 def add():
-    form = AddMovieForm()
-
+    form = MovieTitleForm()
     if form.validate_on_submit():
-        # Create a new record
-        with app.app_context():
-            form_data = {f.name: f.data for f in form if f.name not in ["csrf_token", "submit"]}
-            add_movie = Movie(**form_data)
-            db.session.add(add_movie)
-            db.session.commit()
-        return redirect(url_for("home"))
-    return render_template("add.html", form=form, headers=form_headers)
+        parameters = {
+            "api_key": TMDB_API_KEY,
+            "query": form.title.data
+        }
+        response = requests.get("https://api.themoviedb.org/3/search/movie", params=parameters)
+        response.raise_for_status()
+        data = response.json()
+        search_results = data["results"]
+        return render_template("select.html", results=search_results)
+    return render_template("add.html", form=form)
+
+    # "https://api.themoviedb.org/3/movie/{movie_id}"
 
 
 @app.route("/delete/<int:movie_id>", methods=["GET", "POST"])
