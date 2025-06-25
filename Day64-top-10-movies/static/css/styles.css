@@ -26,12 +26,17 @@
 	 flex-wrap: wrap;
 	 max-width: 1500px;
 }
- p.overview {
-	 font-size: 12px;
-	 height: 200px;
-	 width: 100%;
-	 overflow: hidden;
-	 text-overflow: ellipsis;
+p.overview {
+  font-size: 12px;
+  width: 100%;
+  line-height: 1.5em;
+  max-height: 10.5em;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 7;
+  overflow: hidden;
+  position: relative;
+  text-overflow: ellipsis;
 }
  .heading {
 	 width: 100%;
@@ -59,7 +64,7 @@
 	 margin-top: 0;
 	 margin-left: 1rem;
 	 margin-bottom: 3rem;
-}
+ }
  .card {
 	 color: inherit;
 	 cursor: pointer;
@@ -211,4 +216,4 @@
 }
  .release_date {
 	 font-weight: normal;
-}
+ }
