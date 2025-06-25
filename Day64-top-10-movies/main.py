@@ -93,10 +93,11 @@ def add():
         with app.app_context():
             form_data = {f.name: f.data for f in form if f.name not in ["csrf_token", "submit"]}
             add_movie = Movie(**form_data)
+            print(add_movie)
             db.session.add(add_movie)
             db.session.commit()
-        return render_template("add.html", form=form, headers=form_headers, book_added=True)
-    return render_template("add.html", form=form, headers=form_headers, book_added=False)
+        return redirect(url_for("home"))
+    return render_template("add.html", form=form, headers=form_headers)
 
 
 if __name__ == '__main__':
