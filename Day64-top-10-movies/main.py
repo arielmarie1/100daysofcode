@@ -18,6 +18,7 @@ Bootstrap5(app)
 # The Movie Database API
 TMDB_API_KEY = os.getenv("API_KEY")
 
+
 # CREATE DB
 class Base(DeclarativeBase):
     pass
@@ -68,24 +69,6 @@ class AddMovieForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
-## Test adding a new movie to database
-# new_movie = Movie(
-#     title="Phone Booth",
-#     year=2002,
-#     description="Publicist Stuart Shepard finds himself trapped in a phone booth, "
-#                 "pinned down by an extortionist's sniper rifle. Unable to leave or receive outside help, "
-#                 "Stuart's negotiation with the caller leads to a jaw-dropping climax.",
-#     rating=7.3,
-#     ranking=10,
-#     review="My favourite character was the caller.",
-#     img_url="https://image.tmdb.org/t/p/w500/tjrX2oWRCM3Tvarz38zlZM7Uc10.jpg"
-# )
-
-# with app.app_context():
-#     db.session.add(new_movie)
-#     db.session.commit()
-
-
 @app.route("/")
 def home():
     with app.app_context():
@@ -108,7 +91,26 @@ def add():
         return render_template("select.html", results=search_results)
     return render_template("add.html", form=form)
 
-    # "https://api.themoviedb.org/3/movie/{movie_id}"
+
+@app.route("/select/<int:api_movie_id>", methods=["GET", "POST"])
+def select(api_movie_id):
+    url = f"https://api.themoviedb.org/3/movie/{api_movie_id}"
+    response = requests.get(url, params={"api_key": TMDB_API_KEY})
+    response.raise_for_status()
+    movie = response.json()
+    new_movie = Movie(
+        title=movie["title"],
+        year=movie["release_date"][:4],
+        description=movie["overview"],
+        rating=movie["vote_average"],
+        ranking=0,
+        review="",
+        img_url=f"https://image.tmdb.org/t/p/w500{movie['poster_path']}"
+    )
+    with app.app_context():
+        db.session.add(new_movie)
+        db.session.commit()
+    return redirect(url_for("home"))
 
 
 @app.route("/delete/<int:movie_id>", methods=["GET", "POST"])
