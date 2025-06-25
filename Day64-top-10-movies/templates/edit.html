@@ -1,8 +1,24 @@
 {% extends 'base.html' %} {% from 'bootstrap5/form.html' import render_form %}
 {% block title %}Edit Movies{% endblock %} {% block content %}
 <div class="content">
-  <h1 class="heading">Movie Title</h1>
-  <p class="description">Edit Movie Rating</p>
-  {{ render_form(form, novalidate=True) }}
+  <h1 class="heading">{{ form.title.data }}</h1>
+  <p class="description">Edit Movie Info</p>
+      <form action="{{ url_for('edit', movie_id=movie_id) }}" method="POST" novalidate class="container mt-4">
+                {{ form.csrf_token }}
+                {% for field in headers %}
+                    <div class="mb-3 row">
+                        <label class="col-sm-2 col-form-label text-end">{{ form[field].label }} </label>
+                        <div class="col-sm-9">
+                            {{ form[field](class="form-control") }}
+                            {% for err in form[field].errors %}
+                                <div class="form-text text-danger">{{ err }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="text-center">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+      </form>
 </div>
 {% endblock %}

@@ -49,6 +49,7 @@ with app.app_context():
 # CREATE FORM
 form_headers = ["title", "year", "description", "rating", "ranking", "review", "img_url"]
 class AddMovieForm(FlaskForm):
+
     title = StringField('Movie Title', validators=[DataRequired()])
     year = StringField('Year', validators=[DataRequired()])
     description = StringField('Description', validators=[DataRequired()])
@@ -93,11 +94,31 @@ def add():
         with app.app_context():
             form_data = {f.name: f.data for f in form if f.name not in ["csrf_token", "submit"]}
             add_movie = Movie(**form_data)
-            print(add_movie)
             db.session.add(add_movie)
             db.session.commit()
         return redirect(url_for("home"))
     return render_template("add.html", form=form, headers=form_headers)
+
+
+@app.route("/delete/<int:movie_id>", methods=["GET", "POST"])
+def delete(movie_id):
+    with app.app_context():
+        movie_to_delete = db.session.execute(db.select(Movie).where(Movie.id == movie_id)).scalar()
+        db.session.delete(movie_to_delete)
+        db.session.commit()
+    return redirect(url_for("home"))
+
+
+@app.route("/edit/<int:movie_id>", methods=["GET", "POST"])
+def edit(movie_id):
+    with app.app_context():
+        movie_to_edit = db.session.execute(db.select(Movie).where(Movie.id == movie_id)).scalar()
+        form = AddMovieForm(obj=movie_to_edit)
+        if form.validate_on_submit():
+            form.populate_obj(movie_to_edit)
+            db.session.commit()
+            return redirect(url_for("home"))
+        return render_template("edit.html", form=form, headers=form_headers, movie_id=movie_id)
 
 
 if __name__ == '__main__':
