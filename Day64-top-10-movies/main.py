@@ -47,6 +47,7 @@ with app.app_context():
 
 
 # CREATE FORM
+form_headers = ["title", "year", "description", "rating", "ranking", "review", "img_url"]
 class AddMovieForm(FlaskForm):
     title = StringField('Movie Title', validators=[DataRequired()])
     year = StringField('Year', validators=[DataRequired()])
@@ -58,27 +59,44 @@ class AddMovieForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
-# Test adding a new movie to database
-new_movie = Movie(
-    title="Phone Booth",
-    year=2002,
-    description="Publicist Stuart Shepard finds himself trapped in a phone booth, "
-                "pinned down by an extortionist's sniper rifle. Unable to leave or receive outside help, "
-                "Stuart's negotiation with the caller leads to a jaw-dropping climax.",
-    rating=7.3,
-    ranking=10,
-    review="My favourite character was the caller.",
-    img_url="https://image.tmdb.org/t/p/w500/tjrX2oWRCM3Tvarz38zlZM7Uc10.jpg"
-)
+## Test adding a new movie to database
+# new_movie = Movie(
+#     title="Phone Booth",
+#     year=2002,
+#     description="Publicist Stuart Shepard finds himself trapped in a phone booth, "
+#                 "pinned down by an extortionist's sniper rifle. Unable to leave or receive outside help, "
+#                 "Stuart's negotiation with the caller leads to a jaw-dropping climax.",
+#     rating=7.3,
+#     ranking=10,
+#     review="My favourite character was the caller.",
+#     img_url="https://image.tmdb.org/t/p/w500/tjrX2oWRCM3Tvarz38zlZM7Uc10.jpg"
+# )
 
-with app.app_context():
-    db.session.add(new_movie)
-    db.session.commit()
+# with app.app_context():
+#     db.session.add(new_movie)
+#     db.session.commit()
 
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    with app.app_context():
+        movies = db.session.execute(db.select(Movie).order_by(Movie.ranking)).scalars().all()
+    return render_template("index.html", headers=form_headers, movies=movies)
+
+
+@app.route("/add", methods=["GET", "POST"])
+def add():
+    form = AddMovieForm()
+
+    if form.validate_on_submit():
+        # Create a new record
+        with app.app_context():
+            form_data = {f.name: f.data for f in form if f.name not in ["csrf_token", "submit"]}
+            add_movie = Movie(**form_data)
+            db.session.add(add_movie)
+            db.session.commit()
+        return render_template("add.html", form=form, headers=form_headers, book_added=True)
+    return render_template("add.html", form=form, headers=form_headers, book_added=False)
 
 
 if __name__ == '__main__':
