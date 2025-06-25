@@ -9,7 +9,7 @@
                     <div class="mb-3 row">
                         <label class="col-sm-2 col-form-label text-end">{{ form[field].label }} </label>
                         <div class="col-sm-9">
-                            {% if field in ['ranking', 'review'] %}
+                            {% if field in ['rating', 'review'] %}
                                 {{ form[field](class="form-control bg-warning-subtle border-warning", placeholder="Required")    }}
                             {% else %}
                                 {{ form[field](class="form-control") }}

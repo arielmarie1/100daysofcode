@@ -69,6 +69,18 @@ class AddMovieForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
+# Update Ranking Function
+def update_rankings():
+    movies = db.session.execute(
+        db.select(Movie).order_by(Movie.rating.desc())
+    ).scalars().all()
+
+    for index, movie in enumerate(movies, start=1):
+        movie.ranking = index
+
+    db.session.commit()
+
+
 @app.route("/")
 def home():
     with app.app_context():
@@ -110,7 +122,9 @@ def select(api_movie_id):
     with app.app_context():
         db.session.add(new_movie)
         db.session.commit()
-    return redirect(url_for("home"))
+        update_rankings()
+        selected_movie = db.session.execute(db.select(Movie).where(Movie.title == new_movie.title)).scalar()
+    return redirect(url_for("edit", movie_id=selected_movie.id))
 
 
 @app.route("/delete/<int:movie_id>", methods=["GET", "POST"])
@@ -119,6 +133,7 @@ def delete(movie_id):
         movie_to_delete = db.session.execute(db.select(Movie).where(Movie.id == movie_id)).scalar()
         db.session.delete(movie_to_delete)
         db.session.commit()
+        update_rankings()
     return redirect(url_for("home"))
 
 
@@ -130,6 +145,7 @@ def edit(movie_id):
         if form.validate_on_submit():
             form.populate_obj(movie_to_edit)
             db.session.commit()
+            update_rankings()
             return redirect(url_for("home"))
         return render_template("edit.html", form=form, headers=form_headers, movie_id=movie_id)
 
