@@ -3,8 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Boolean
 import random as r
+import os
+from dotenv import load_dotenv
 
 app = Flask(__name__)
+
+load_dotenv()
+match_api_key = os.getenv("MY_API_KEY")
 
 
 # CREATE DB
@@ -106,7 +111,7 @@ def add_cafe():
     return jsonify(response={"success": "Successfully added cafe"})
 
 
-@app.route("/update-price/<cafe_id>", methods=["GET", "PATCH"])
+@app.route("/update-price/<int:cafe_id>", methods=["GET", "PATCH"])
 def update_price(cafe_id):
     updated_price = request.args.get("updated_price")
     with app.app_context():
@@ -114,6 +119,21 @@ def update_price(cafe_id):
         cafe_to_update.coffee_price = updated_price
         db.session.commit()
         return jsonify(cafe=to_dict(cafe_to_update))
+
+
+@app.route("/report-closed/<int:cafe_id>", methods=["DELETE"])
+def report_closed(cafe_id):
+    api_key = request.args.get("api-key")
+    if api_key == match_api_key:
+        cafe_to_delete = db.session.execute(db.select(Cafe).where(Cafe.id == cafe_id)).scalar()
+        if cafe_to_delete is None:
+            return jsonify(message="Sorry a cafe with that id was not found in the database")
+        else:
+            db.session.delete(cafe_to_delete)
+            db.session.commit()
+            return jsonify(deleted_cafe=to_dict(cafe_to_delete))
+    else:
+        return jsonify(error="Sorry that's not allowed. Make sure you have a valid api-key")
 
 
 if __name__ == '__main__':
