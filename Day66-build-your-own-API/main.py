@@ -113,7 +113,7 @@ def add_cafe():
 
 @app.route("/update-price/<int:cafe_id>", methods=["GET", "PATCH"])
 def update_price(cafe_id):
-    updated_price = request.args.get("updated_price")
+    updated_price = request.args.get("updated-price")
     with app.app_context():
         cafe_to_update = db.session.execute(db.select(Cafe).where(Cafe.id == cafe_id)).scalar()
         cafe_to_update.coffee_price = updated_price
