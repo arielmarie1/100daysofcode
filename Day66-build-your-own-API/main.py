@@ -106,5 +106,15 @@ def add_cafe():
     return jsonify(response={"success": "Successfully added cafe"})
 
 
+@app.route("/update-price/<cafe_id>", methods=["GET", "PATCH"])
+def update_price(cafe_id):
+    updated_price = request.args.get("updated_price")
+    with app.app_context():
+        cafe_to_update = db.session.execute(db.select(Cafe).where(Cafe.id == cafe_id)).scalar()
+        cafe_to_update.coffee_price = updated_price
+        db.session.commit()
+        return jsonify(cafe=to_dict(cafe_to_update))
+
+
 if __name__ == '__main__':
     app.run(debug=True)
