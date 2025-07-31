@@ -37,9 +37,6 @@ class NewPostForm(FlaskForm):
     submit = SubmitField(label="Submit Post")
 
 
-post_form_headers = ["title", "subtitle", "author", "img_url", "body"]
-
-
 # CONFIGURE TABLE
 class BlogPost(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -72,8 +69,8 @@ def show_post(post_id):
 def add_new_post():
     new_post_form = NewPostForm()
     if new_post_form.validate_on_submit():
-        return render_template("make-post.html", form=new_post_form, headers=post_form_headers, post_added=True)
-    return render_template('make-post.html', form=new_post_form, headers=post_form_headers, post_added=False)
+        return render_template("make-post.html", form=new_post_form)
+    return render_template('make-post.html', form=new_post_form)
 
 
 # TODO: edit_post() to change an existing blog post
