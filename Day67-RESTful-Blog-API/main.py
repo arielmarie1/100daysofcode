@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -15,6 +15,8 @@ app = Flask(__name__)
 load_dotenv()
 secret_key = os.getenv("SECRET_KEY")
 app.config['SECRET_KEY'] = secret_key
+app.config['CKEDITOR_PKG_TYPE'] = 'basic'
+ckeditor = CKEditor(app)
 Bootstrap5(app)
 
 
@@ -33,7 +35,7 @@ class NewPostForm(FlaskForm):
     subtitle = StringField(label='Subtitle', validators=[DataRequired()])
     author = StringField(label='Your Name', validators=[DataRequired()])
     img_url = StringField(label='Blog Image URL', validators=[DataRequired(), URL()])
-    body = StringField(label="Blog Content", validators=[DataRequired()])
+    body = CKEditorField(label="Blog Content", validators=[DataRequired()])
     submit = SubmitField(label="Submit Post")
 
 
@@ -69,8 +71,19 @@ def show_post(post_id):
 def add_new_post():
     new_post_form = NewPostForm()
     if new_post_form.validate_on_submit():
-        return render_template("make-post.html", form=new_post_form)
-    return render_template('make-post.html', form=new_post_form)
+        today_date = date.today().strftime("%B %d, %Y")
+        with app.app_context():
+            new_post = BlogPost(
+                title=request.form.get("title"),
+                subtitle=request.form.get("subtitle"),
+                author=request.form.get("author"),
+                img_url=request.form.get("img_url"),
+                date=today_date,
+                body=request.form.get("body"))
+            db.session.add(new_post)
+            db.session.commit()
+        return render_template("make-post.html", form=new_post_form, post_added=True)
+    return render_template('make-post.html', form=new_post_form, post_added=False)
 
 
 # TODO: edit_post() to change an existing blog post
