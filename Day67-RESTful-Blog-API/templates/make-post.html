@@ -26,21 +26,7 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-8 col-md-10 mx-auto">
-        <form method="POST" action="{{ url_for('add_new_post') }}" novalidate>
-          {{ form.csrf_token }}
-          {% for field in headers %}
-          <p>
-            {{ form[field].label }} <br> {{ form[field](size=30) }}
-            {% for err in form[field].errors %}
-            <span style="color:red">{{ err }} </span>
-            {% endfor %}
-          </p>
-          {% endfor %}
-          {{ form.submit }}
-        </form>
-        {% if post_added %}
-          <p style="color: #008000;">Your entry has been successfully added!</p>
-        {% endif %}
+        {{ render_form(form, novalidate=True, button_map={"submit": "primary"}) }}
       </div>
     </div>
   </div>
