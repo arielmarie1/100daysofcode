@@ -8,30 +8,36 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, URL
 from flask_ckeditor import CKEditor, CKEditorField
 from datetime import date
-
-'''
-Make sure the required packages are installed: 
-Open the Terminal in PyCharm (bottom left). 
-
-On Windows type:
-python -m pip install -r requirements.txt
-
-On MacOS type:
-pip3 install -r requirements.txt
-
-This will install the packages from the requirements.txt for this project.
-'''
+import os
+from dotenv import load_dotenv
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+load_dotenv()
+secret_key = os.getenv("SECRET_KEY")
+app.config['SECRET_KEY'] = secret_key
 Bootstrap5(app)
+
 
 # CREATE DATABASE
 class Base(DeclarativeBase):
     pass
+
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
+
+
+class NewPostForm(FlaskForm):
+    title = StringField(label='Blog Post Title', validators=[DataRequired()])
+    subtitle = StringField(label='Subtitle', validators=[DataRequired()])
+    author = StringField(label='Your Name', validators=[DataRequired()])
+    img_url = StringField(label='Blog Image URL', validators=[DataRequired(), URL()])
+    body = StringField(label="Blog Content", validators=[DataRequired()])
+    submit = SubmitField(label="Submit Post")
+
+
+post_form_headers = ["title", "subtitle", "author", "img_url", "body"]
 
 
 # CONFIGURE TABLE
@@ -51,19 +57,24 @@ with app.app_context():
 
 @app.route('/')
 def get_all_posts():
-    # TODO: Query the database for all the posts. Convert the data to a python list.
-    posts = []
+    result = db.session.execute(db.select(BlogPost))
+    posts = result.scalars().all()
     return render_template("index.html", all_posts=posts)
 
-# TODO: Add a route so that you can click on individual posts.
-@app.route('/')
+
+@app.route('/post/<int:post_id>')
 def show_post(post_id):
-    # TODO: Retrieve a BlogPost from the database based on the post_id
-    requested_post = "Grab the post from your database"
+    requested_post = db.session.execute(db.select(BlogPost).where(BlogPost.id == post_id)).scalar()
     return render_template("post.html", post=requested_post)
 
 
-# TODO: add_new_post() to create a new blog post
+@app.route('/new-post', methods=['GET', 'POST'])
+def add_new_post():
+    new_post_form = NewPostForm()
+    if new_post_form.validate_on_submit():
+        return render_template("make-post.html", form=new_post_form, headers=post_form_headers, post_added=True)
+    return render_template('make-post.html', form=new_post_form, headers=post_form_headers, post_added=False)
+
 
 # TODO: edit_post() to change an existing blog post
 
