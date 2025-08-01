@@ -16,6 +16,7 @@ load_dotenv()
 my_email = os.getenv("MY_EMAIL")
 password = os.getenv("OTP")
 
+
 # Creating variable paths and converting user inputs
 @app.route("/")
 @app.route("/home")
