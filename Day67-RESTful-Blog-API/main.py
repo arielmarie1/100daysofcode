@@ -106,6 +106,7 @@ def delete_post(post_id):
     post_to_delete = db.session.execute(db.select(BlogPost).where(BlogPost.id == post_id)).scalar()
     db.session.delete(post_to_delete)
     db.session.commit()
+    flash("Item deleted.")
     return redirect(url_for("get_all_posts"))
 
 
